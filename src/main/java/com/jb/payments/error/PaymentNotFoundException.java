@@ -1,6 +1,6 @@
 package com.jb.payments.error;
 
-public class PaymentNotFoundException extends Exception{
+public class PaymentNotFoundException extends RuntimeException{
 
     public PaymentNotFoundException() {
         super();
