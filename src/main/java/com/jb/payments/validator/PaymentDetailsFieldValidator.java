@@ -5,41 +5,30 @@ import com.jb.payments.entity.Payment;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import static org.apache.logging.log4j.util.Strings.isBlank;
-
 public class PaymentDetailsFieldValidator implements ConstraintValidator<ValidPaymentDetailsFields, Payment> {
 
     @Override
     public boolean isValid(Payment payment, ConstraintValidatorContext context) {
         if (payment == null || payment.getPaymentType() == null) return true;
 
-        boolean correctDetailsFieldSet = switch (payment.getPaymentType()) {
-            case TYPE1 -> isOnlyDetailsFieldSet(payment.getDetailsForType1(), payment.getDetailsForType2(), payment.getCreditorBankBicCode());
-            case TYPE2 -> areOtherDetailFieldsEmpty(payment.getDetailsForType1(), payment.getCreditorBankBicCode());
-            case TYPE3 -> isOnlyDetailsFieldSet(payment.getCreditorBankBicCode(), payment.getDetailsForType1(), payment.getDetailsForType2());
+        return switch (payment.getPaymentType()) {
+            case TYPE1 -> isOnlyDetailsFieldSet(payment.getDetails(), payment.getCreditorBankBicCode());
+            case TYPE2 -> areOtherDetailFieldsEmpty(payment.getDetails(), payment.getCreditorBankBicCode());
+            case TYPE3 -> isOnlyDetailsFieldSet(payment.getCreditorBankBicCode(), payment.getDetails());
         };
 
-        return correctDetailsFieldSet;
     }
 
-    private boolean isOnlyDetailsFieldSet(String allowedDetailsField, String... others) {
+    private boolean isOnlyDetailsFieldSet(String details, String creditorDetails) {
+        if (details == null || details.isBlank()) return false;
 
-        if (allowedDetailsField == null || allowedDetailsField.isBlank()) return false;
-        for (String s : others) {
-            if (s != null ) return false;
-        }
-
-        return true;
+        return creditorDetails == null;
     }
 
-    private boolean areOtherDetailFieldsEmpty(String... fields) {
-        for (String field : fields) {
-            if (!isBlank(field)) {
-                return false;
-            }
-        }
+    private boolean areOtherDetailFieldsEmpty(String details, String creditorDetails) {
+        if (details != null && details.isBlank()) return false;
 
-        return true;
+        return creditorDetails == null;
     }
 
 }

@@ -1,39 +1,29 @@
-package com.jb.payments.entity;
+package com.jb.payments.dto;
 
-import com.jb.payments.annotation.ValidPaymentDetailsFields;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jb.payments.enums.Currency;
 import com.jb.payments.enums.PaymentType;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@ValidPaymentDetailsFields
-public class Payment {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@JsonInclude(JsonInclude.Include.NON_NULL)
+public class PaymentPublicDTO {
     private Long paymentId;
 
     private PaymentType paymentType;
 
-    @PositiveOrZero
     private float amount;
 
     private Currency currency;
 
-    @NotBlank
     private String debtorIban;
 
-    @NotBlank
     private String creditorIban;
 
     private Float cancellationFee;
@@ -41,6 +31,6 @@ public class Payment {
     private String details;
 
     private String creditorBankBicCode;
-
-
 }
+
+
