@@ -1,7 +1,7 @@
 package com.jb.payments.controller;
 
 import com.jb.payments.dto.PaymentCancelDTO;
-import com.jb.payments.dto.PaymentPublicDTO;
+import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.error.PaymentNotFoundException;
 import com.jb.payments.service.PaymentService;
 import jakarta.validation.Valid;
@@ -28,8 +28,8 @@ public class PaymentController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<PaymentPublicDTO> createPayment(@Valid @RequestBody PaymentPublicDTO paymentDto){
-        PaymentPublicDTO savedPayment = paymentService.createPayment(paymentDto);
+    public ResponseEntity<PaymentPublicInputDTO> createPayment(@Valid @RequestBody PaymentPublicInputDTO paymentDto){
+        PaymentPublicInputDTO savedPayment = paymentService.createPayment(paymentDto);
         LOGGER.info("Creating a payment...");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -37,25 +37,25 @@ public class PaymentController {
     }
 
     @GetMapping("/payments")
-    public ResponseEntity<List<PaymentPublicDTO>> getPaymentList(){
+    public ResponseEntity<List<PaymentPublicInputDTO>> getPaymentList(){
         LOGGER.info((("Getting a list of payments...")));
-        List<PaymentPublicDTO> paymentList = paymentService.getPaymentList();
+        List<PaymentPublicInputDTO> paymentList = paymentService.getPaymentList();
         return ResponseEntity.ok(paymentList);
     }
 
     @GetMapping("/payment/{id}")
-    public ResponseEntity<PaymentPublicDTO>
+    public ResponseEntity<PaymentPublicInputDTO>
     getPaymentById(@PathVariable("id") Long paymentId) throws PaymentNotFoundException {
         LOGGER.info("Retrieving a payment with ID {}", paymentId);
-        PaymentPublicDTO paymentDto = paymentService.getPaymentById(paymentId);
+        PaymentPublicInputDTO paymentDto = paymentService.getPaymentById(paymentId);
         return ResponseEntity.ok(paymentDto);
     }
 
     @PutMapping("/payment/{id}")
-    public ResponseEntity<PaymentPublicDTO> updatePayment
-            (@PathVariable("id") Long paymentId,@RequestBody PaymentPublicDTO paymentDto){
+    public ResponseEntity<PaymentPublicInputDTO> updatePayment
+            (@PathVariable("id") Long paymentId,@RequestBody PaymentPublicInputDTO paymentDto){
         LOGGER.info("Updating a payment with ID {}", paymentId);
-        PaymentPublicDTO updatedPayment = paymentService.updatePayment(paymentId,paymentDto);
+        PaymentPublicInputDTO updatedPayment = paymentService.updatePayment(paymentId,paymentDto);
 
         return ResponseEntity.ok(updatedPayment);
     }
