@@ -1,6 +1,5 @@
 package com.jb.payments.entity;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.jb.payments.annotation.ValidPaymentDetailsFields;
 import com.jb.payments.enums.Currency;
 import com.jb.payments.enums.PaymentType;
@@ -12,18 +11,19 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ValidPaymentDetailsFields
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Payment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long paymentId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long paymentId;
 
     private PaymentType paymentType;
 
@@ -38,13 +38,14 @@ public class Payment {
     @NotBlank
     private String creditorIban;
 
-    private Float cancellationFee;
-
-    private String detailsForType1;
-
-    private String detailsForType2;
+    private String details;
 
     private String creditorBankBicCode;
 
+    private Float cancellationFee;
+
+    private boolean isCancelled;
+
+    private LocalTime timeOfCreation;
 
 }
