@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalTime;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -36,11 +38,14 @@ public class Payment {
     @NotBlank
     private String creditorIban;
 
-    private Float cancellationFee;
-
     private String details;
 
     private String creditorBankBicCode;
 
+    private Float cancellationFee;
+
+    private boolean isCancelled;
+
+    private LocalTime timeOfCreation;
 
 }

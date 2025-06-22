@@ -1,5 +1,6 @@
 package com.jb.payments.service;
 
+import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicDTO;
 import com.jb.payments.entity.Payment;
 import com.jb.payments.enums.Currency;
@@ -87,7 +88,13 @@ public class PaymentService {
         return PaymentMapper.toDTO(paymentSaved);
     }
 
+    public PaymentCancelDTO updatePaymentToCancelled(Long paymentId, PaymentCancelDTO paymentCancelDto) {
+        return null;
+    }
+
     public void deletePaymentById(Long paymentId) {
         paymentRepository.deleteById(paymentId);
     }
+
+
 }

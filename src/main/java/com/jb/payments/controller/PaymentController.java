@@ -1,5 +1,6 @@
 package com.jb.payments.controller;
 
+import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicDTO;
 import com.jb.payments.error.PaymentNotFoundException;
 import com.jb.payments.service.PaymentService;
@@ -66,4 +67,14 @@ public class PaymentController {
 
         return ResponseEntity.ok("Payment nr. " + paymentId + " deleted Successfully.");
     }
+
+    @PutMapping("/payment/cancel/{id}")
+    public ResponseEntity<PaymentCancelDTO> updatePaymentToCancelled
+            (@PathVariable("id") Long paymentId,@RequestBody PaymentCancelDTO paymentCancelDto){
+        LOGGER.info("Updating a payment with ID {} to canceled", paymentId);
+        PaymentCancelDTO updatedPayment = paymentService.updatePaymentToCancelled(paymentId,paymentCancelDto);
+
+        return ResponseEntity.ok(updatedPayment);
+    }
+
 }

@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,6 +33,8 @@ public class PaymentPublicDTO {
     private String details;
 
     private String creditorBankBicCode;
+
+    private LocalDate timeOfCreation;
 }
 
 
