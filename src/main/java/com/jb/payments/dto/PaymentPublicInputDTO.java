@@ -16,6 +16,7 @@ import java.time.LocalDate;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentPublicInputDTO {
+
     private Long paymentId;
 
     private PaymentType paymentType;
@@ -34,7 +35,7 @@ public class PaymentPublicInputDTO {
 
     private String creditorBankBicCode;
 
-    //private LocalDate timeOfCreation;
+    private LocalDate timeOfCreation;
 }
 
 
