@@ -1,7 +1,7 @@
 package com.jb.payments.service;
 
 import com.jb.payments.dto.PaymentCancelDTO;
-import com.jb.payments.dto.PaymentPublicDTO;
+import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.entity.Payment;
 import com.jb.payments.enums.Currency;
 import com.jb.payments.enums.PaymentType;
@@ -26,7 +26,7 @@ public class PaymentService {
         return payment.getPaymentType() == expectedType;
     }
 
-    public PaymentPublicDTO createPayment(PaymentPublicDTO paymentDto) {
+    public PaymentPublicInputDTO createPayment(PaymentPublicInputDTO paymentDto) {
         Payment payment = PaymentMapper.toEntity(paymentDto);
         if (paymentIsType(payment, PaymentType.TYPE1) &&
                 payment.getCurrency() != Currency.EUR) {
@@ -51,9 +51,9 @@ public class PaymentService {
         return PaymentMapper.toDTO(payment);
     }
 
-    public List<PaymentPublicDTO> getPaymentList() {
+    public List<PaymentPublicInputDTO> getPaymentList() {
         List<Payment> payments = paymentRepository.findAll();
-        List<PaymentPublicDTO> dtoList = new ArrayList<>();
+        List<PaymentPublicInputDTO> dtoList = new ArrayList<>();
         for (Payment payment : payments) {
             dtoList.add(PaymentMapper.toDTO(payment));
         }
@@ -61,7 +61,7 @@ public class PaymentService {
         return dtoList;
     }
 
-    public PaymentPublicDTO getPaymentById(Long paymentId) throws PaymentNotFoundException {
+    public PaymentPublicInputDTO getPaymentById(Long paymentId) throws PaymentNotFoundException {
         Optional<Payment> payment = paymentRepository.findById(paymentId);
         if (!payment.isPresent()) {
             throw new PaymentNotFoundException("Payment with ID " + paymentId + " does not exist");
@@ -70,7 +70,7 @@ public class PaymentService {
         return PaymentMapper.toDTO(payment.get());
     }
 
-    public PaymentPublicDTO updatePayment(Long paymentId, PaymentPublicDTO paymentDto) {
+    public PaymentPublicInputDTO updatePayment(Long paymentId, PaymentPublicInputDTO paymentDto) {
         Payment paymentNew = PaymentMapper.toEntity(paymentDto);
 
         Payment paymentUpdated = paymentRepository.findById(paymentId)

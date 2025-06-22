@@ -1,10 +1,10 @@
 package com.jb.payments.mapper;
 
-import com.jb.payments.dto.PaymentPublicDTO;
+import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.entity.Payment;
 
 public class PaymentMapper {
-    public static Payment toEntity(PaymentPublicDTO dto) {
+    public static Payment toEntity(PaymentPublicInputDTO dto) {
         Payment payment = new Payment();
         payment.setPaymentId(dto.getPaymentId());
         payment.setPaymentType(dto.getPaymentType());
@@ -18,8 +18,8 @@ public class PaymentMapper {
         return payment;
     }
 
-    public static PaymentPublicDTO toDTO(Payment payment) {
-        PaymentPublicDTO dto = new PaymentPublicDTO();
+    public static PaymentPublicInputDTO toDTO(Payment payment) {
+        PaymentPublicInputDTO dto = new PaymentPublicInputDTO();
         dto.setPaymentId(payment.getPaymentId());
         dto.setPaymentType(payment.getPaymentType());
         dto.setAmount(payment.getAmount());
