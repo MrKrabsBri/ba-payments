@@ -8,15 +8,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class PaymentPublicInputDTO {
-
     private Long paymentId;
 
     private PaymentType paymentType;
@@ -35,7 +32,8 @@ public class PaymentPublicInputDTO {
 
     private String creditorBankBicCode;
 
-    private LocalDate timeOfCreation;
+    private boolean canceled;
+
 }
 
 

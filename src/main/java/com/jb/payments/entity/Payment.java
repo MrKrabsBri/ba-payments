@@ -10,7 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 @Entity
@@ -42,10 +44,13 @@ public class Payment {
 
     private String creditorBankBicCode;
 
-    private Float cancellationFee;
+    private float cancellationFee;
 
     private boolean isCancelled;
 
+    @CreationTimestamp
     private LocalTime timeOfCreation;
 
+    @CreationTimestamp
+    private LocalDate dateOfCreation;
 }

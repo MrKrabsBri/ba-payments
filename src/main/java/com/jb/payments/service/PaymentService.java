@@ -1,6 +1,5 @@
 package com.jb.payments.service;
 
-import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.entity.Payment;
 import com.jb.payments.enums.Currency;
@@ -12,6 +11,9 @@ import com.jb.payments.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,8 +21,13 @@ import java.util.Optional;
 @Service
 public class PaymentService {
 
+    private final float COEFFICIENT_TYPE_1 = 0.05f;
+    private final float COEFFICIENT_TYPE_2 = 0.1f;
+    private final float COEFFICIENT_TYPE_3 = 0.15f;
+
     @Autowired
     private PaymentRepository paymentRepository;
+
 
     public boolean paymentIsType(Payment payment, PaymentType expectedType) {
         return payment.getPaymentType() == expectedType;
@@ -88,8 +95,83 @@ public class PaymentService {
         return PaymentMapper.toDTO(paymentSaved);
     }
 
-    public PaymentCancelDTO updatePaymentToCancelled(Long paymentId, PaymentCancelDTO paymentCancelDto) {
-        return null;
+    public PaymentPublicInputDTO updatePaymentToCancelled(Long paymentId) {
+        //Payment paymentNew = PaymentCancelMapper.toEntity(payment);
+        Payment paymentDB = paymentRepository.findById(paymentId)
+                .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
+
+        LocalDate nowDate = LocalDate.now();
+        LocalTime nowTime = LocalTime.now();
+
+/*        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime creationDateTime = LocalDateTime.of(
+                paymentDB.getDateOfCreation(),
+                paymentDB.getTimeOfCreation()
+        );*/
+
+
+        if (nowDate.equals(paymentDB.getDateOfCreation()) &&
+                (nowTime.isAfter(paymentDB.getTimeOfCreation()) || nowTime.equals(paymentDB.getTimeOfCreation()))) {
+
+            Duration duration = Duration.between(paymentDB.getTimeOfCreation(), nowTime);
+            long hoursPassed = duration.toHours();
+
+            paymentDB.setCancelled(true);
+
+            switch (paymentDB.getPaymentType()) {
+                case TYPE1 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_1 * hoursPassed);
+                case TYPE2 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_2 * hoursPassed);
+                case TYPE3 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_3 * hoursPassed);
+            }
+
+            Payment saved = paymentRepository.save(paymentDB);
+            return PaymentMapper.toDTO(saved);
+        }
+        else throw new IllegalStateException("Cancellation attempted after 00:00");
+/*        if (!now.isBefore(creationDateTime)) {
+            Duration timePassed = Duration.between(creationDateTime, now);
+            long hoursPassed = timePassed.toHours();
+
+            paymentDB.setCancelled(true);
+
+            switch (paymentDB.getPaymentType()) {
+                case TYPE1 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_1 * hoursPassed);
+                case TYPE2 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_2 * hoursPassed);
+                case TYPE3 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_3 * hoursPassed);
+            }
+
+            Payment savedPayment = paymentRepository.save(paymentDB);
+            return PaymentMapper.toDTO(savedPayment);
+        } else {
+            throw new IllegalStateException("Cancellation attempted before payment creation time.");
+        }*/
+
+
+
+
+       /* if (nowDate.getYear() == paymentDB.getDateOfCreation().getYear() &&
+                nowDate.getDayOfYear() == paymentDB.getDateOfCreation().getDayOfYear() &&
+                    (nowTime.isAfter(paymentDB.getTimeOfCreation()) ||
+                        nowTime.equals(paymentDB.getTimeOfCreation()))) {
+
+            Duration timePassedSinceCreation = Duration.between(paymentDB.getTimeOfCreation(), nowTime);
+            long hoursPassedSinceCreation = timePassedSinceCreation.toHours();
+
+            paymentDB.setCancelled(true);
+
+           switch (paymentDB.getPaymentType()) {
+                case TYPE1 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_1 * hoursPassedSinceCreation);
+                case TYPE2 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_2 * hoursPassedSinceCreation);
+                case TYPE3 -> paymentDB.setCancellationFee(COEFFICIENT_TYPE_3 * hoursPassedSinceCreation);
+            };
+
+            Payment paymentSaved = paymentRepository.save(paymentDB);
+            return PaymentMapper.toDTO(paymentSaved);
+
+        }
+
+        return PaymentMapper.toDTO(paymentDB);
+*/
     }
 
     public void deletePaymentById(Long paymentId) {
