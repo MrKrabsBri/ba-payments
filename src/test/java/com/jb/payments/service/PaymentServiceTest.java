@@ -46,6 +46,7 @@ class PaymentServiceTest {
     }
 
     @Test
+
     public void createPaymentType1_wrongPaymentType_throwWrongPaymentException() {
         PaymentPublicInputDTO input = PaymentPublicInputDTO.builder()
                 .paymentType(PaymentType.TYPE1)
@@ -64,7 +65,7 @@ class PaymentServiceTest {
         assertEquals("Payment of TYPE1 must use currency EUR", ex.getMessage());
     }
 
-    @Test
+ @Test
     public void getPayment_validPayment_returnsPaymentDTO(){
         PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
                 .paymentType(PaymentType.TYPE1)

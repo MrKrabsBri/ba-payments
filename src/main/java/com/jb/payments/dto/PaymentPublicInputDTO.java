@@ -34,7 +34,6 @@ public class PaymentPublicInputDTO {
 
     private boolean canceled;
 
-    //private LocalDate timeOfCreation;
 }
 
 
