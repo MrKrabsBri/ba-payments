@@ -1,8 +1,6 @@
 package com.jb.payments.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.jb.payments.enums.Currency;
-import com.jb.payments.enums.PaymentType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -4,18 +4,13 @@ import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.enums.Currency;
 import com.jb.payments.enums.PaymentType;
 import com.jb.payments.error.WrongPaymentException;
-import com.jb.payments.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static java.util.stream.Stream.builder;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -51,14 +46,14 @@ class PaymentServiceTest {
     }
 
     @Test
-    public void createPaymentType1_wrongPaymentType_throwException() {
+    public void createPaymentType1_wrongPaymentType_throwWrongPaymentException() {
         PaymentPublicInputDTO input = PaymentPublicInputDTO.builder()
                 .paymentType(PaymentType.TYPE1)
                 .amount(100.00f)
                 .currency(Currency.USD)
                 .debtorIban("LT123456789")
                 .creditorIban("LT9999456789")
-                .details("Bowling")
+                .details("Rent")
                 .build();
 
         // Act & Assert: expect WrongPaymentException
@@ -77,19 +72,43 @@ class PaymentServiceTest {
                 .currency(Currency.EUR)
                 .debtorIban("LT123456789")
                 .creditorIban("LT9999456789")
-                .details("Bowling")
+                .details("Uz pirkinius")
                 .build();
 
         PaymentPublicInputDTO output = paymentService.createPayment(expected);
+        PaymentPublicInputDTO actual = paymentService.getPaymentById(1L);
 
-        assertNotNull(output.getPaymentId());
-        assertEquals(expected.getPaymentType(), output.getPaymentType());
-        assertEquals(expected.getAmount(), output.getAmount());
-        assertEquals(expected.getCurrency(), output.getCurrency());
-        assertEquals(expected.getDebtorIban(), output.getDebtorIban());
-        assertEquals(expected.getCreditorIban(), output.getCreditorIban());
-        assertEquals(expected.getDetails(), output.getDetails());
+        assertNotNull(actual.getPaymentId());
+        assertEquals(expected.getPaymentType(), actual.getPaymentType());
+        assertEquals(expected.getAmount(), actual.getAmount());
+        assertEquals(expected.getCurrency(), actual.getCurrency());
+        assertEquals(expected.getDebtorIban(), actual.getDebtorIban());
+        assertEquals(expected.getCreditorIban(), actual.getCreditorIban());
+        assertEquals(expected.getDetails(), actual.getDetails());
     }
 
+    @Test
+    public void updatePaymentToCanceled_validPaymentType1_canceledFieldTrue(){
+        PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
+                .paymentType(PaymentType.TYPE1)
+                .amount(100.00f)
+                .currency(Currency.EUR)
+                .debtorIban("LT123456789")
+                .creditorIban("LT9999456789")
+                .details("For drinks")
+                .canceled(false)
+                .cancellationFee(0.05f)
+                .build();
+
+        Long createdId =  paymentService.createPayment(expected).getPaymentId();
+        //PaymentPublicInputDTO output = paymentService.createPayment(expected);
+        //PaymentPublicInputDTO dto = paymentService.getPaymentById(1L);
+        //long recordId = paymentService.getPaymentById(createdId).getPaymentId();
+        PaymentPublicInputDTO updated = paymentService.updatePaymentToCancelled(createdId);
+
+        assertTrue(updated.isCanceled());
+        assertTrue(updated.getCancellationFee() > 0);
+
+    }
 
 }

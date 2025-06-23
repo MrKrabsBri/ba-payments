@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDate;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,6 +31,8 @@ public class PaymentPublicInputDTO {
     private String details;
 
     private String creditorBankBicCode;
+
+    private boolean canceled;
 
     //private LocalDate timeOfCreation;
 }
