@@ -16,7 +16,6 @@ public class PaymentDetailsFieldValidator implements ConstraintValidator<ValidPa
             case TYPE2 -> areOtherDetailFieldsEmpty(payment.getDetails(), payment.getCreditorBankBicCode());
             case TYPE3 -> isOnlyDetailsFieldSet(payment.getCreditorBankBicCode(), payment.getDetails());
         };
-
     }
 
     private boolean isOnlyDetailsFieldSet(String details, String creditorDetails) {

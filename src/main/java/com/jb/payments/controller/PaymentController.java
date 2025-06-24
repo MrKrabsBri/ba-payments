@@ -1,5 +1,8 @@
 package com.jb.payments.controller;
 
+import com.jb.payments.dto.PaymentIdCancellationFeeDTO;
+import com.jb.payments.dto.PaymentIdDTO;
+import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.error.PaymentNotFoundException;
 import com.jb.payments.service.PaymentService;
@@ -27,9 +30,11 @@ public class PaymentController {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<PaymentPublicInputDTO> createPayment(@Valid @RequestBody PaymentPublicInputDTO paymentDto){
+    public ResponseEntity<PaymentPublicInputDTO> createPayment
+            (@Valid @RequestBody PaymentPublicInputDTO paymentDto){
         PaymentPublicInputDTO savedPayment = paymentService.createPayment(paymentDto);
         LOGGER.info("Creating a payment...");
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(savedPayment);
@@ -39,14 +44,16 @@ public class PaymentController {
     public ResponseEntity<List<PaymentPublicInputDTO>> getPaymentList(){
         LOGGER.info((("Getting a list of payments...")));
         List<PaymentPublicInputDTO> paymentList = paymentService.getPaymentList();
+
         return ResponseEntity.ok(paymentList);
     }
 
-    @GetMapping("/payment/{id}")
+    @GetMapping("/payment/plain/{id}")
     public ResponseEntity<PaymentPublicInputDTO>
-    getPaymentById(@PathVariable("id") Long paymentId) throws PaymentNotFoundException {
+    getPaymentByIdForTesting(@PathVariable("id") Long paymentId) throws PaymentNotFoundException {
         LOGGER.info("Retrieving a payment with ID {}", paymentId);
-        PaymentPublicInputDTO paymentDto = paymentService.getPaymentById(paymentId);
+        PaymentPublicInputDTO paymentDto = paymentService.getPaymentByIdForTesting(paymentId);
+
         return ResponseEntity.ok(paymentDto);
     }
 
@@ -59,21 +66,35 @@ public class PaymentController {
         return ResponseEntity.ok(updatedPayment);
     }
 
-    @DeleteMapping("/payment/{id}")
-    public ResponseEntity<String> deletePaymentById(@PathVariable("id") Long paymentId){
-        paymentService.deletePaymentById(paymentId);
-        LOGGER.info("Deleting payment with ID {}", paymentId);
-
-        return ResponseEntity.ok("Payment nr. " + paymentId + " deleted Successfully.");
-    }
-
     @PutMapping("/payment/cancel/{id}")
-    public ResponseEntity<PaymentPublicInputDTO> updatePaymentToCancelled
+    public ResponseEntity<PaymentCancelDTO> updatePaymentToCancelled
             (@PathVariable("id") Long paymentId/*,@RequestBody PaymentCancelDTO paymentCancelDto*/){
         LOGGER.info("Updating a payment with ID {} to canceled", paymentId);
-        PaymentPublicInputDTO updatedPayment = paymentService.updatePaymentToCancelled(paymentId);
+        PaymentCancelDTO updatedPayment = paymentService.updatePaymentToCancelled(paymentId);
 
         return ResponseEntity.ok(updatedPayment);
     }
 
+    @GetMapping("/active")
+    public ResponseEntity<List<PaymentIdDTO>> getActivePayments() {
+        List <PaymentIdDTO> dtos = paymentService.getActivePayments();
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/active/range")
+    public ResponseEntity<List<PaymentIdDTO>> listPaymentsInRange(
+            @RequestParam("min") float min, @RequestParam("max") float max) {
+        List<PaymentIdDTO> dtos = paymentService.getActivePaymentsInRange(min, max);
+
+        return ResponseEntity.ok(dtos);
+    }
+
+    @GetMapping("/payment/{id}")
+    public ResponseEntity<PaymentIdCancellationFeeDTO> getPaymentById(@PathVariable("id") Long paymentId) throws PaymentNotFoundException {
+        LOGGER.info("Retrieving a payment with ID {}", paymentId);
+        PaymentIdCancellationFeeDTO paymentDto = paymentService.getPaymentById(paymentId);
+
+        return ResponseEntity.ok(paymentDto);
+    }
 }

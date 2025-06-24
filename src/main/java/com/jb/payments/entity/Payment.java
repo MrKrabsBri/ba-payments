@@ -46,7 +46,7 @@ public class Payment {
 
     private float cancellationFee;
 
-    private boolean isCancelled;
+    private boolean cancelled;
 
     @CreationTimestamp
     private LocalTime timeOfCreation;
