@@ -1,14 +1,21 @@
 package com.jb.payments.service;
 
+import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicInputDTO;
+import com.jb.payments.entity.Payment;
 import com.jb.payments.enums.Currency;
 import com.jb.payments.enums.PaymentType;
 import com.jb.payments.error.WrongPaymentException;
+import com.jb.payments.mapper.PaymentMapper;
+import com.jb.payments.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,6 +25,9 @@ class PaymentServiceTest {
 
     @Autowired
     private PaymentService paymentService;
+
+    @Autowired
+    PaymentRepository paymentRepository;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +67,6 @@ class PaymentServiceTest {
                 .details("Rent")
                 .build();
 
-        // Act & Assert: expect WrongPaymentException
         WrongPaymentException ex = assertThrows(WrongPaymentException.class, () -> {
             paymentService.createPayment(input);
         });
@@ -77,7 +86,7 @@ class PaymentServiceTest {
                 .build();
 
         PaymentPublicInputDTO output = paymentService.createPayment(expected);
-        PaymentPublicInputDTO actual = paymentService.getPaymentById(1L);
+        PaymentPublicInputDTO actual = paymentService.getPaymentByIdForTesting(1L);
 
         assertNotNull(actual.getPaymentId());
         assertEquals(expected.getPaymentType(), actual.getPaymentType());
@@ -91,6 +100,7 @@ class PaymentServiceTest {
     @Test
     public void updatePaymentToCanceled_validPaymentType1_canceledFieldTrue(){
         PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
+                .paymentId(1L)
                 .paymentType(PaymentType.TYPE1)
                 .amount(100.00f)
                 .currency(Currency.EUR)
@@ -98,16 +108,27 @@ class PaymentServiceTest {
                 .creditorIban("LT9999456789")
                 .details("For drinks")
                 .canceled(false)
-                .cancellationFee(0.05f)
+                .cancellationFee(null) // .
+                .dateOfCreation(LocalDate.of(2025, 6, 23))
+                .timeOfCreation(LocalTime.of(10, 1, 10))
                 .build();
 
-        Long createdId =  paymentService.createPayment(expected).getPaymentId();
+        System.out.println("expected" + expected);
+
+        Payment p = PaymentMapper.toEntity(expected);
+
+        Payment pp = paymentRepository.save(p);
+        System.out.println("id created  : "+ pp.getPaymentId());
         //PaymentPublicInputDTO output = paymentService.createPayment(expected);
         //PaymentPublicInputDTO dto = paymentService.getPaymentById(1L);
         //long recordId = paymentService.getPaymentById(createdId).getPaymentId();
-        PaymentPublicInputDTO updated = paymentService.updatePaymentToCancelled(createdId);
+        PaymentCancelDTO updated = paymentService.updatePaymentToCancelled(pp.getPaymentId());
+        System.out.println("updated " + updated);
 
-        assertTrue(updated.isCanceled());
+        PaymentPublicInputDTO actual = paymentService.getPaymentByIdForTesting(pp.getPaymentId());
+        System.out.println("retrieved after cancel: " + actual);
+
+        assertTrue(updated.isCancelled());
         assertTrue(updated.getCancellationFee() > 0);
 
     }

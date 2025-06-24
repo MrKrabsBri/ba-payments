@@ -11,11 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class PaymentCancelDTO {
-    private boolean cancelled;
-    private float cancellationFee;
+public class PaymentIdDTO {
+    private Long paymentId;
 }
-
-
-
-

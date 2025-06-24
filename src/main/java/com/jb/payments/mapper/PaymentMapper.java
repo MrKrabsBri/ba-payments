@@ -14,6 +14,8 @@ public class PaymentMapper {
         payment.setCreditorIban(dto.getCreditorIban());
         payment.setDetails(dto.getDetails());
         payment.setCreditorBankBicCode(dto.getCreditorBankBicCode());
+        /*payment.setCancelled(dto.isCanceled());
+        payment.setCancellationFee(dto.getCancellationFee());*/
 
         return payment;
     }
@@ -28,6 +30,8 @@ public class PaymentMapper {
         dto.setCreditorIban(payment.getCreditorIban());
         dto.setDetails(payment.getDetails());
         dto.setCreditorBankBicCode(payment.getCreditorBankBicCode());
+/*        dto.setCanceled(payment.isCancelled());
+        dto.setCancellationFee(payment.getCancellationFee());*/
 
         return dto;
     }
