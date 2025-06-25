@@ -7,7 +7,7 @@ import com.jb.payments.entity.Payment;
 public class PaymentCancelMapper {
     public static Payment toEntity(PaymentPublicInputDTO dto){
         Payment payment = new Payment();
-        payment.setCancelled(dto.isCanceled());
+        payment.setCancelled(dto.isCancelled());
         payment.setCancellationFee(dto.getCancellationFee());
         return payment;
     }

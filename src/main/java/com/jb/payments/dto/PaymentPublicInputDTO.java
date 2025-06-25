@@ -35,7 +35,7 @@ public class PaymentPublicInputDTO {
 
     private String creditorBankBicCode;
 
-    private boolean canceled;
+    private boolean cancelled;
 
     private LocalTime timeOfCreation;
 

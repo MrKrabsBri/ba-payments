@@ -69,7 +69,7 @@ public class PaymentController {
     @PutMapping("/payment/cancel/{id}")
     public ResponseEntity<PaymentCancelDTO> updatePaymentToCancelled
             (@PathVariable("id") Long paymentId/*,@RequestBody PaymentCancelDTO paymentCancelDto*/){
-        LOGGER.info("Updating a payment with ID {} to canceled", paymentId);
+        LOGGER.info("Updating a payment with ID {} to cancelled", paymentId);
         PaymentCancelDTO updatedPayment = paymentService.updatePaymentToCancelled(paymentId);
 
         return ResponseEntity.ok(updatedPayment);
