@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,11 +27,11 @@ import java.util.stream.Collectors;
 public class PaymentService {
 
     @Autowired
-    private  PaymentRepository paymentRepository;
+    private PaymentRepository paymentRepository;
     @Autowired
     private Clock clock;
     @Autowired
-    private  CancellationFeeCalculator cancellationFeeCalculator;
+    private CancellationFeeCalculator cancellationFeeCalculator;
 
     public PaymentPublicInputDTO createPayment(PaymentPublicInputDTO paymentDto) {
         Payment payment = PaymentMapper.toEntity(paymentDto);
@@ -60,13 +59,10 @@ public class PaymentService {
     }
 
     public List<PaymentPublicInputDTO> getPaymentList() {
-        List<Payment> payments = paymentRepository.findAll();
-        List<PaymentPublicInputDTO> dtoList = new ArrayList<>();
-        for (Payment payment : payments) {
-            dtoList.add(PaymentMapper.toDTO(payment));
-        }
-
-        return dtoList;
+        return paymentRepository.findAll()
+                .stream()
+                .map(PaymentMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     public PaymentPublicInputDTO getPaymentByIdForTesting(Long paymentId) throws PaymentNotFoundException {
@@ -80,10 +76,10 @@ public class PaymentService {
 
     public PaymentPublicInputDTO updatePayment(Long paymentId, PaymentPublicInputDTO paymentDto) {
         Payment paymentNew = PaymentMapper.toEntity(paymentDto);
-
         Payment paymentUpdated = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
         paymentUpdated.setPaymentType(paymentNew.getPaymentType());
+        paymentUpdated.setAmount(paymentNew.getAmount());
         paymentUpdated.setCurrency(paymentNew.getCurrency());
         paymentUpdated.setDebtorIban(paymentNew.getDebtorIban());
         paymentUpdated.setCreditorIban(paymentNew.getCreditorIban());
@@ -114,8 +110,7 @@ public class PaymentService {
                     .calculateCancellationFee(paymentDB, hoursPassed));
             Payment saved = paymentRepository.save(paymentDB);
             return PaymentCancelMapper.toDTO(saved);
-        }
-        else throw new IllegalStateException("Cancellation attempted after 00:00");
+        } else throw new IllegalStateException("Cancellation attempted after 00:00");
     }
 
     public List<PaymentIdDTO> getActivePayments() {

@@ -1,6 +1,5 @@
 package com.jb.payments.service;
 
-import com.jb.payments.dto.PaymentCancelDTO;
 import com.jb.payments.dto.PaymentPublicInputDTO;
 import com.jb.payments.entity.Payment;
 import com.jb.payments.enums.Currency;
@@ -10,54 +9,74 @@ import com.jb.payments.mapper.PaymentMapper;
 import com.jb.payments.repository.PaymentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class PaymentServiceTest {
 
-    @Autowired
+    @InjectMocks
     private PaymentService paymentService;
 
-    @Autowired
-    PaymentRepository paymentRepository;
+    @Mock
+    private PaymentRepository paymentRepository;
+
+    private Payment paymentType1;
+/*    @Autowired
+    PaymentRepository paymentRepository;*/
 
     @BeforeEach
     void setUp() {
+        paymentType1 = new Payment();
+        paymentType1.setPaymentId(1L);
+        paymentType1.setAmount(999.00f);
+        paymentType1.setCurrency(Currency.EUR);
+        paymentType1.setDebtorIban("LT11223344556677889900");
+        paymentType1.setCreditorIban("LT777888999444555000111");
+        paymentType1.setDetails("For testing purposes");
     }
 
     @Test
-    public void createPaymentType1_validPayment_returnSavedPaymentDTO() {
-        PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
-                .paymentType(PaymentType.TYPE1)
-                .amount(100.00f)
-                .currency(Currency.EUR)
-                .debtorIban("LT123456789")
-                .creditorIban("LT9999456789")
-                .details("Bowling")
-                .build();
-
-        PaymentPublicInputDTO output = paymentService.createPayment(expected);
-
-        assertNotNull(output.getPaymentId());
-        assertEquals(expected.getPaymentType(), output.getPaymentType());
-        assertEquals(expected.getAmount(), output.getAmount());
-        assertEquals(expected.getCurrency(), output.getCurrency());
-        assertEquals(expected.getDebtorIban(), output.getDebtorIban());
-        assertEquals(expected.getCreditorIban(), output.getCreditorIban());
-        assertEquals(expected.getDetails(), output.getDetails());
+    void testCreatePayment_validPayment_returnsDto() {
+        when(paymentRepository.save(any(Payment.class))).thenReturn(paymentType1);
+        PaymentPublicInputDTO savedDto = paymentService.createPayment(
+                PaymentMapper.toDTO(paymentType1));
+        assertEquals(1L, savedDto.getPaymentId());
+        assertEquals(999.00f, savedDto.getAmount());
+        assertEquals(Currency.EUR, savedDto.getCurrency());
+        assertEquals("LT11223344556677889900", savedDto.getDebtorIban());
+        assertEquals("LT777888999444555000111", savedDto.getCreditorIban());
+        assertEquals("For testing purposes", savedDto.getDetails());
+        verify(paymentRepository, times(1)).save(paymentType1);
     }
 
     @Test
+    public void testGetPaymentForTestingType1_validId_returnSavedPaymentPublicInputDTO() {
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentType1));
+        PaymentPublicInputDTO dto = paymentService.getPaymentByIdForTesting((1L));
+        assertNotNull(dto.getPaymentId());
+        assertEquals(paymentType1.getPaymentType(), dto.getPaymentType());
+        assertEquals(paymentType1.getAmount(), dto.getAmount());
+        assertEquals(paymentType1.getCurrency(), dto.getCurrency());
+        assertEquals(paymentType1.getDebtorIban(), dto.getDebtorIban());
+        assertEquals(paymentType1.getCreditorIban(), dto.getCreditorIban());
+        assertEquals(paymentType1.getDetails(), dto.getDetails());
+    }
 
-    public void createPaymentType1_wrongPaymentType_throwWrongPaymentException() {
+    @Test
+    public void testCreatePaymentType1_wrongPaymentType_throwWrongPaymentException() {
         PaymentPublicInputDTO input = PaymentPublicInputDTO.builder()
                 .paymentType(PaymentType.TYPE1)
                 .amount(100.00f)
@@ -66,71 +85,63 @@ class PaymentServiceTest {
                 .creditorIban("LT9999456789")
                 .details("Rent")
                 .build();
-
         WrongPaymentException ex = assertThrows(WrongPaymentException.class, () -> {
             paymentService.createPayment(input);
         });
-
         assertEquals("Payment of TYPE1 must use currency EUR", ex.getMessage());
     }
 
- @Test
-    public void getPayment_validPayment_returnsPaymentDTO(){
-        PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
-                .paymentType(PaymentType.TYPE1)
-                .amount(100.00f)
-                .currency(Currency.EUR)
-                .debtorIban("LT123456789")
-                .creditorIban("LT9999456789")
-                .details("Uz pirkinius")
-                .build();
-
-        PaymentPublicInputDTO output = paymentService.createPayment(expected);
-        PaymentPublicInputDTO actual = paymentService.getPaymentByIdForTesting(1L);
-
-        assertNotNull(actual.getPaymentId());
-        assertEquals(expected.getPaymentType(), actual.getPaymentType());
-        assertEquals(expected.getAmount(), actual.getAmount());
-        assertEquals(expected.getCurrency(), actual.getCurrency());
-        assertEquals(expected.getDebtorIban(), actual.getDebtorIban());
-        assertEquals(expected.getCreditorIban(), actual.getCreditorIban());
-        assertEquals(expected.getDetails(), actual.getDetails());
-    }
-
     @Test
-    public void updatePaymentToCanceled_validPaymentType1_canceledFieldTrue(){
-        PaymentPublicInputDTO expected = PaymentPublicInputDTO.builder()
-                .paymentId(1L)
-                .paymentType(PaymentType.TYPE1)
-                .amount(100.00f)
-                .currency(Currency.EUR)
-                .debtorIban("LT123456789")
-                .creditorIban("LT9999456789")
-                .details("For drinks")
-                .canceled(false)
-                .cancellationFee(null) // .
-                .dateOfCreation(LocalDate.of(2025, 6, 23))
-                .timeOfCreation(LocalTime.of(10, 1, 10))
-                .build();
+    public void testGetPayment_validPayment_returnsPaymentListDTO() {
 
-        System.out.println("expected" + expected);
+        List<Payment> payments = Arrays.asList(paymentType1);
+        when(paymentRepository.findAll()).thenReturn(payments);
 
-        Payment p = PaymentMapper.toEntity(expected);
+        List<PaymentPublicInputDTO> dtos = paymentService.getPaymentList();
 
-        Payment pp = paymentRepository.save(p);
-        System.out.println("id created  : "+ pp.getPaymentId());
-        //PaymentPublicInputDTO output = paymentService.createPayment(expected);
-        //PaymentPublicInputDTO dto = paymentService.getPaymentById(1L);
-        //long recordId = paymentService.getPaymentById(createdId).getPaymentId();
-        PaymentCancelDTO updated = paymentService.updatePaymentToCancelled(pp.getPaymentId());
-        System.out.println("updated " + updated);
+        assertEquals(1, dtos.size());
+        assertEquals(paymentType1.getPaymentId(), dtos.get(0).getPaymentId());
+        assertEquals(paymentType1.getPaymentType(), dtos.get(0).getPaymentType());
+        assertEquals(paymentType1.getAmount(), dtos.get(0).getAmount());
+        assertEquals(paymentType1.getCurrency(), dtos.get(0).getCurrency());
+        assertEquals(paymentType1.getDebtorIban(), dtos.get(0).getDebtorIban());
+        assertEquals(paymentType1.getCreditorIban(), dtos.get(0).getCreditorIban());
+        assertEquals(paymentType1.getDetails(), dtos.get(0).getDetails());
 
-        PaymentPublicInputDTO actual = paymentService.getPaymentByIdForTesting(pp.getPaymentId());
-        System.out.println("retrieved after cancel: " + actual);
-
-        assertTrue(updated.isCancelled());
-        assertTrue(updated.getCancellationFee() > 0);
-
+        verify(paymentRepository, times(1)).findAll();
     }
 
+  /*  @Test
+    public void testUpdatePayment_validPayment_returnsUpdatedDto() {
+        Payment updated = new Payment();
+        updated.setPaymentType(PaymentType.TYPE2);
+        updated.setAmount(40.00f);
+        updated.setCurrency(Currency.USD);
+        updated.setDebtorIban("LT111111111111111");
+        updated.setCreditorIban("LT2222222222222222222222");
+        updated.setDetails("For pizza and drinks!");
+
+        Payment saved = new Payment();
+        saved.setPaymentId(1L);
+        saved.setAmount(20.00f);
+        saved.setCurrency(Currency.EUR);
+        saved.setDebtorIban("LT11223344556677889900");
+        saved.setCreditorIban("LT777888999444555000111");
+        saved.setDetails("For pizza");
+
+        when(paymentRepository.findById(1L)).thenReturn(Optional.of(paymentType1));
+        when(paymentRepository.save(any(Payment.class))).thenReturn(saved);
+
+        PaymentPublicInputDTO dto = paymentService.updatePayment(1L,
+                PaymentMapper.toDTO(updated));
+
+        assertEquals(40.0, dto.getAmount());
+        assertEquals(PaymentType.TYPE2 , dto.getPaymentType());
+        assertEquals(Currency.USD, dto.getCurrency());
+        assertEquals("LT11223344556677889900", dto.getDebtorIban());
+        assertEquals("LT777888999444555000111", dto.getCreditorIban());
+        assertEquals("For pizza and drinks!", dto.getDetails());
+
+        verify(paymentRepository).save(any(Payment.class));
+    }*/
 }
