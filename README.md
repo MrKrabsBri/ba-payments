@@ -41,5 +41,5 @@ A simple Spring Boot based backend service for managing payments, packaged as a 
   DB_PASSWORD=password
 
   ## Postman
-  Link to Postman collection to test out API : https://julius-9465839.postman.co/workspace/Julius's-Workspace~2c28515a-eceb-433a-8cec-019fe2c244c4/request/44657444-f9518051-87db-47d1-9157-d1f49cda06f1?action=share&source=copy-link&creator=44657444
+  Link to Postman collection to test out API : https://www.postman.com/julius-9465839/workspace/payments-ba/collection/44657444-2004ed9b-d57d-43b7-bf0c-52774a78b25c?action=share&creator=44657444
   
