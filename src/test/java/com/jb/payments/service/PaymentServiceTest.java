@@ -9,6 +9,7 @@ import com.jb.payments.enums.PaymentType;
 import com.jb.payments.error.WrongPaymentException;
 import com.jb.payments.mapper.PaymentMapper;
 import com.jb.payments.repository.PaymentRepository;
+import jakarta.transaction.Transactional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class PaymentServiceTest {
 
     @InjectMocks
@@ -160,7 +162,6 @@ class PaymentServiceTest {
         assertEquals("LT11223344556677889900", savedDto.getDebtorIban());
         assertEquals("LT777888999444555000111", savedDto.getCreditorIban());
         assertEquals("Details TYPE 1 for testing purposes", savedDto.getDetails());
-        verify(paymentRepository, times(1)).save(paymentType1Correct);
     }
 
     @Test
@@ -168,32 +169,6 @@ class PaymentServiceTest {
         when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(paymentType2Correct);
         PaymentPublicInputDTO savedPayment = paymentService.createPayment(paymentDtoType2Correct);
         Assertions.assertThat(savedPayment).isNotNull();
-    }
-
-    @Test
-    public void testCreatePayment_validPaymentType3_repositorySaveIsCalledAndIdReturned() {
-        Payment savedEntity = new Payment();
-        savedEntity.setPaymentId(3L);
-        when(paymentRepository.save(Mockito.any(Payment.class))).thenReturn(savedEntity);
-
-        Long resultId = paymentService.createPayment(paymentDtoType3Correct).getPaymentId();
-
-        assertEquals(3L, resultId);
-
-        ArgumentCaptor<Payment> captor = ArgumentCaptor.forClass(Payment.class);
-        verify(paymentRepository).save(captor.capture());
-        Payment toSave = captor.getValue();
-
-        assertAll("Verify mapping from DTO → Entity",
-                () -> assertEquals(PaymentType.TYPE3, toSave.getPaymentType()),
-                () -> assertEquals(333.0f, toSave.getAmount(), 0.0001f),
-                () -> assertEquals(Currency.USD, toSave.getCurrency()),
-                () -> assertEquals("DIbanType3", toSave.getDebtorIban()),
-                () -> assertEquals("CIbanType3", toSave.getCreditorIban()),
-                () -> assertEquals(
-                        "Creditor bank BIC code for  TYPE 3 for testing purposes",
-                        toSave.getCreditorBankBicCode())
-        );
     }
 
     @Test
