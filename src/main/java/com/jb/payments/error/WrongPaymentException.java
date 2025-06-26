@@ -6,6 +6,6 @@ public class WrongPaymentException extends RuntimeException {
     }
 
     public WrongPaymentException(String message, Throwable cause) {
-    super(message, cause);
-  }
+        super(message, cause);
+    }
 }

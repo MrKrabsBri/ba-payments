@@ -5,14 +5,14 @@ import com.jb.payments.entity.Payment;
 
 public class PaymentIdCancellationFeeMapper {
 
-    public static Payment toEntity(PaymentIdCancellationFeeDTO dto){
+    public static Payment toEntity(PaymentIdCancellationFeeDTO dto) {
         Payment payment = new Payment();
         payment.setPaymentId(dto.getPaymentId());
         payment.setCancellationFee(dto.getCancellationFee());
         return payment;
     }
 
-    public static PaymentIdCancellationFeeDTO toDTO(Payment payment){
+    public static PaymentIdCancellationFeeDTO toDTO(Payment payment) {
         PaymentIdCancellationFeeDTO paymentActiveInRangeOutputDTO =
                 new PaymentIdCancellationFeeDTO();
         paymentActiveInRangeOutputDTO.setPaymentId(payment.getPaymentId());

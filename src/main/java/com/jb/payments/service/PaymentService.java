@@ -25,13 +25,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class PaymentService {
-
-    @Autowired
-    private PaymentRepository paymentRepository;
     @Autowired
     private Clock clock;
     @Autowired
-    private CancellationFeeCalculator cancellationFeeCalculator;
+    private PaymentRepository paymentRepository;
 
     public PaymentPublicInputDTO createPayment(PaymentPublicInputDTO paymentDto) {
         Payment payment = PaymentMapper.toEntity(paymentDto);
@@ -53,9 +50,8 @@ public class PaymentService {
                         payment.getCreditorBankBicCode().isEmpty())) {
             throw new WrongPaymentException("Payment of TYPE3 must have creditor bank BIC code specified");
         }
-        paymentRepository.save(payment);
-
-        return PaymentMapper.toDTO(payment);
+        PaymentPublicInputDTO paymentOutputDto = PaymentMapper.toDTO(payment);
+        return paymentOutputDto;
     }
 
     public List<PaymentPublicInputDTO> getPaymentList() {
@@ -94,10 +90,8 @@ public class PaymentService {
     public PaymentCancelDTO updatePaymentToCancelled(Long paymentId) {
         Payment paymentDB = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new PaymentNotFoundException("Payment not found"));
-
         LocalDate nowDate = LocalDate.now(clock);
         LocalTime nowTime = LocalTime.now(clock);
-
         if (nowDate.equals(paymentDB.getDateOfCreation()) &&
                 (nowTime.isAfter(paymentDB.getTimeOfCreation()) ||
                         nowTime.equals(paymentDB.getTimeOfCreation()))) {
@@ -106,7 +100,7 @@ public class PaymentService {
             long hoursPassed = duration.toHours();
 
             paymentDB.setCancelled(true);
-            paymentDB.setCancellationFee(cancellationFeeCalculator
+            paymentDB.setCancellationFee(CancellationFeeCalculator
                     .calculateCancellationFee(paymentDB, hoursPassed));
             Payment saved = paymentRepository.save(paymentDB);
             return PaymentCancelMapper.toDTO(saved);
