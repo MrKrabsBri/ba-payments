@@ -6,11 +6,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class CancellationFeeCalculator {
 
-    private final float COEFFICIENT_TYPE_1 = 0.05f;
-    private final float COEFFICIENT_TYPE_2 = 0.1f;
-    private final float COEFFICIENT_TYPE_3 = 0.15f;
+    public static float COEFFICIENT_TYPE_1 = 0.05f;
+    public static float COEFFICIENT_TYPE_2 = 0.1f;
+    public static float COEFFICIENT_TYPE_3 = 0.15f;
 
-    public float calculateCancellationFee(Payment payment, long hoursPassed) {
+    public static float calculateCancellationFee(Payment payment, long hoursPassed) {
 
         return switch (payment.getPaymentType()) {
             case TYPE1 -> COEFFICIENT_TYPE_1 * hoursPassed;
