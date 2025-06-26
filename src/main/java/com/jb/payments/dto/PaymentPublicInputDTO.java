@@ -29,11 +29,11 @@ public class PaymentPublicInputDTO {
 
     private String creditorIban;
 
-    private Float cancellationFee;
-
     private String details;
 
     private String creditorBankBicCode;
+
+    private Float cancellationFee;
 
     private boolean cancelled;
 
